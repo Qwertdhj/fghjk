@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Slider</title>
+    <style>
+        /* Reset and base styles  */
+* {
+	padding: 0px;
+	margin: 0px;
+	border: none;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+/* Links */
+
+a, a:link, a:visited  {
+    text-decoration: none;
+}
+
+a:hover  {
+    text-decoration: none;
+}
+
+/* Common */
+
+aside, nav, footer, header, section, main {
+	display: block;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    font-size: inherit;
+	font-weight: inherit;
+}
+
+ul, ul li {
+	list-style: none;
+}
+
+img {
+	vertical-align: top;
+}
+
+img, svg {
+	max-width: 100%;
+	height: auto;
+}
+
+address {
+  font-style: normal;
+}
+
+/* Form */
+
+input, textarea, button, select {
+	font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    background-color: transparent;
+}
+
+input::-ms-clear {
+	display: none;
+}
+
+button, input[type="submit"] {
+    display: inline-block;
+    box-shadow: none;
+    background-color: transparent;
+    background: none;
+    cursor: pointer;
+}
+
+input:focus, input:active,
+button:focus, button:active {
+    outline: none;
+}
+
+button::-moz-focus-inner {
+	padding: 0;
+	border: 0;
+}
+
+label {
+	cursor: pointer;
+}
+
+legend {
+	display: block;
+}
+/* стили */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f3f3f3;
+    overflow: hidden;
+}
+
+.slider {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.slide {
+    display: none;
+    padding: 20px;
+    text-align: center;
+}
+
+.active {
+    display: block;
+}
+
+button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.prev {
+    left: 5px;
+}
+
+.next {
+    right: 5px;
+}
+
+.next-animate {
+    position: absolute;
+    top: -100%; /* Начальное положение над верхней границей слайдера */
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: black;
+    transition: top 0.5s; /* Анимация спуска квадрата */
+}
+
+.show-next {
+    top: 0; /* Плавное перемещение квадрата в центр слайдера */
+}
+
+.hide-next {
+    top: -100%; /* Поднять квадрат над верхней границей слайдера */
+}
+   .prev-animate {
+    position: absolute;
+    top: 100%; /* Начальное положение над верхней границей слайдера */
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: black;
+    transition: top 0.5s; /* Анимация спуска квадрата */
+}
+
+.prev-animate-two {
+    position: absolute;
+    top: 100%; /* Начальное положение над верхней границей слайдера */
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: black;
+    transition: top 0.5s; /* Анимация спуска квадрата */
+}
+
+.show-prev {
+    top: 0%; /* Плавное перемещение квадрата в центр слайдера */
+}
+
+.hide-prev {
+    top: 100%; /* Поднять квадрат над верхней границей слайдера */
+}
+.preloader {
+    font-family: Arial, sans-serif;
+    font-size: 36px;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    z-index: 99;
+}
+
+.letter {
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.text-container {
+    display: flex;
+    top: 50%;
+    position: relative;
+    left: 41%;
+}
+.glitch {
+    font-family: monospace;
+    font-size: 40px;
+    color: #fff;
+    text-align: center;
+}
+
+.glitch .letter {
+    display: inline-block;
+    position: relative;
+    color: #fff;
+    animation: glitch-anim 0.3s infinite;
+    text-shadow: 
+    0px 0px #ff106b,
+    0px 0px cyan
+}
+
+@keyframes glitch-anim {
+0%
+{
+    text-shadow: 5px 0px #ff106b1f, 25px 0px cyan;
+}
+10%
+{
+    text-shadow: 0px 2px #ff106b, 0px -3px cyan;
+}
+20%
+{
+    text-shadow: -3px -3px #ff106b, 3px 4px cyan;
+}
+}
+
+    </style>
+</head>
+
+<body>
+
+    <div class="slider">
+        <div class="slide active">Slide 1</div>
+        <div class="slide">Slide 2</div>
+        <div class="slide">Slide 3</div>
+        <div class="slide">Slide 4</div>
+        <button class="prev">Previous</button>
+        <button class="next">Next</button>
+            <div class="next-animate"></div>
+            <div class="next-animate-two"></div>
+
+        <div class="prev-animate-two"></div>
+        <div class="prev-animate"></div>
+    </div>
+
+    <script>
+        const slider = document.querySelector('.slider');
+const slides = document.querySelectorAll('.slide');
+let currentSlide = 0;
+let touchStartY = 0;
+let touchEndY = 0;
+const sensitivity = 50; // Чувствительность касания для определения свайпа
+
+function showSlide(index) {
+    slides.forEach((slide, i) => {
+        if (i === index) {
+            slide.classList.add('active');
+        } else {
+            slide.classList.remove('active');
+        }
+    });
+}
+const prevAnimate = document.querySelector('.prev-animate');
+const prevAnimateTwo = document.querySelector('.prev-animate-two');
+document.querySelector('.prev').addEventListener('click', () => {
+
+    if (currentSlide > 0) {
+        currentSlide--;
+        showSlide(currentSlide);
+        prevAnimate.classList.add('show-prev');
+        prevAnimateTwo.classList.add('show-prev');
+        setTimeout(() => {
+            prevAnimate.classList.add('hide-prev');
+            prevAnimateTwo.classList.add('hide-prev');
+            setTimeout(() => {
+                prevAnimate.classList.remove('hide-prev');
+                prevAnimate.classList.remove('show-prev');
+                prevAnimateTwo.classList.remove('hide-prev');
+                prevAnimateTwo.classList.remove('show-prev');
+            }, 500); // Убрать черный квадрат через 0.5 секунды
+        }, 1700); // Поднять квадрат через 1 секунду
+    }
+});
+
+const nextButton = document.querySelector('.next');
+const nextAnimate = document.querySelector('.next-animate');
+const nextAnimateTwo = document.querySelector('.next-animate-two');
+nextButton.addEventListener('click', () => {
+    if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        showSlide(currentSlide);
+        nextAnimate.classList.add('show-next');
+        nextAnimateTwo.classList.add('show-next');
+        // Поднятие квадрата и его исчезновение через 1 секунду
+        setTimeout(() => {
+            nextAnimate.classList.add('hide-next');
+            nextAnimateTwo.classList.add('hide-next');
+            setTimeout(() => {
+                nextAnimate.classList.remove('hide-next');
+                nextAnimate.classList.remove('show-next');
+                nextAnimateTwo.classList.remove('hide-next');
+                nextAnimateTwo.classList.remove('show-next');
+            }, 500); // Убрать черный квадрат через 0.5 секунды
+        }, 1700); // Поднять квадрат через 1 секунду
+    }
+});
+showNextLetter();
+    </script>
+</body>
+
+</html>
